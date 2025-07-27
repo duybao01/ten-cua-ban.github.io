@@ -1,0 +1,128 @@
+/* Tổng thể trang */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fde2e4; /* Màu nền hồng nhạt */
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #ffc2d1;
+    color: #8c5b6b;
+    text-align: center;
+    padding: 30px 0;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+/* Dòng thời gian */
+.timeline {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Đường kẻ giữa */
+.timeline::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    background-color: white;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -3px;
+}
+
+/* Khung chứa nội dung */
+.container {
+    padding: 10px 40px;
+    position: relative;
+    background-color: inherit;
+    width: 50%;
+}
+
+/* Các vòng tròn trên dòng thời gian */
+.container::after {
+    content: '❤️';
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    right: -17px;
+    background-color: white;
+    border: 4px solid #ffc2d1;
+    top: 15px;
+    border-radius: 50%;
+    z-index: 1;
+    font-size: 10px;
+    text-align: center;
+    line-height: 25px;
+}
+
+/* Cột mốc bên trái */
+.left {
+    left: 0;
+}
+
+/* Cột mốc bên phải */
+.right {
+    left: 50%;
+}
+
+/* Mũi tên chỉ vào dòng thời gian */
+.left::before {
+    content: " ";
+    height: 0;
+    position: absolute;
+    top: 22px;
+    width: 0;
+    z-index: 1;
+    right: 30px;
+    border: medium solid white;
+    border-width: 10px 0 10px 10px;
+    border-color: transparent transparent transparent white;
+}
+
+.right::before {
+    content: " ";
+    height: 0;
+    position: absolute;
+    top: 22px;
+    width: 0;
+    z-index: 1;
+    left: 30px;
+    border: medium solid white;
+    border-width: 10px 10px 10px 0;
+    border-color: transparent white transparent transparent;
+}
+
+/* Sửa vị trí vòng tròn cho cột mốc bên phải */
+.right::after {
+    left: -16px;
+}
+
+/* Nội dung bên trong */
+.content {
+    padding: 20px 30px;
+    background-color: white;
+    position: relative;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.content img {
+    width: 100%;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #ffc2d1;
+    color: #8c5b6b;
+}
