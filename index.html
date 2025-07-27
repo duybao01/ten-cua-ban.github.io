@@ -3,48 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>100 Ngày Yêu ❤️</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Hành Trình Tình Yêu ❤️</title>
+
+    <!-- 
+      - Font 'Great Vibes': Font thư pháp mới, cực kỳ bay bổng.
+      - Font 'Quicksand': Hiện đại, dễ đọc.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #fdf2f4;
+            --text-color: #5b2c40;
+            --primary-pink: #e91e63;
+            --secondary-pink: #f48fb1;
+            /* Thay đổi font chữ */
+            --title-font: 'Great Vibes', cursive;
+            --body-font: 'Quicksand', sans-serif;
+        }
+
+        /* --- Cài đặt cơ bản & Hiệu ứng mở đầu --- */
+        body {
+            font-family: var(--body-font);
+            margin: 0;
+            background-color: var(--bg-color);
+            overflow: hidden; /* Ẩn cuộn cho đến khi intro kết thúc */
+        }
+
+        #intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #heart-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #intro-status {
+            position: absolute;
+            bottom: 15vh; /* Đặt vị trí dựa vào chiều cao màn hình */
+            color: white;
+            font-family: var(--title-font);
+            font-size: 3em;
+            text-shadow: 0 0 15px var(--primary-pink), 0 0 10px var(--primary-pink);
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 1;
+        }
+
+        /* --- Nội dung chính --- */
+        #main-content {
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            visibility: hidden;
+        }
+
+        .main-header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        .main-header h1 {
+            font-family: var(--title-font);
+            font-size: 6em;
+            color: var(--primary-pink);
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* --- Timeline Tương Tác --- */
+        .timeline-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            margin-bottom: 50px;
+        }
+        
+        #timeline-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #timeline-path {
+            stroke: var(--secondary-pink);
+            stroke-width: 3px;
+            stroke-dasharray: 7 7;
+            fill: none;
+            stroke-dashoffset: 3000;
+        }
+        
+        .milestone-marker {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            border: 3px solid var(--primary-pink);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            transform: translate(-50%, -50%) scale(0);
+            animation: pop-in 0.5s forwards, pulse 2s infinite;
+            animation-delay: 5.5s, 6s;
+        }
+        @keyframes pop-in { to { transform: translate(-50%, -50%) scale(1); } }
+        @keyframes pulse {
+            50% { box-shadow: 0 0 0 15px rgba(233, 30, 99, 0); }
+        }
+        .milestone-marker:hover { animation-play-state: paused; transform: translate(-50%, -50%) scale(1.3); }
+
+        .milestone-marker small {
+            position: absolute;
+            bottom: -30px;
+            font-weight: bold;
+            background: rgba(253, 242, 244, 0.8);
+            padding: 2px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        #connector-line {
+            position: absolute;
+            width: 2px;
+            background: var(--primary-pink);
+            transform-origin: top center;
+            height: 0;
+            transition: height 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 10;
+        }
+
+        .milestone-content {
+            position: absolute;
+            width: 280px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 20px;
+            text-align: center;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+            transition: all 0.4s ease-out;
+            z-index: 11;
+        }
+        .milestone-content.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .milestone-content img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+        .milestone-content h2 { margin: 0 0 10px 0; font-family: var(--title-font); color: var(--primary-pink); font-size: 2.5em; }
+        .milestone-content p { margin: 0; font-size: 0.9em; line-height: 1.6; }
+
+        /* --- Thư viện ảnh & Lá thư (Scroll-triggered) --- */
+        .scroll-section {
+            padding: 50px 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s, transform 1s;
+        }
+        .scroll-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: var(--title-font);
+            font-size: 4em;
+            color: var(--primary-pink);
+            font-weight: normal;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .photo-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .photo-card img { width: 100%; display: block; border-radius: 4px; }
+        
+        .letter-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .letter-content {
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 50px;
+            border-radius: 15px;
+            text-align: left;
+            font-size: 1.1em;
+            line-height: 1.8;
+            position: relative;
+            z-index: 2;
+        }
+        .letter-content p::first-letter { font-family: var(--title-font); font-size: 5em; color: var(--primary-pink); float: left; line-height: 0.8; padding-right: 15px; }
+        
+        .deco-icon {
+            position: absolute;
+            font-size: 2em;
+            color: var(--secondary-pink);
+            z-index: 1;
+        }
+        #plane { animation: fly 20s linear infinite; }
+        @keyframes fly {
+            0% { transform: translate(-20vw, 20vh) rotate(-20deg); }
+            100% { transform: translate(120vw, -30vh) rotate(10deg); }
+        }
+        #heart1 { top: 15%; left: 10%; animation: pulse-deco 2.5s infinite; }
+        #heart2 { top: 80%; left: 85%; animation: pulse-deco 3s infinite; }
+        #infinity { top: 50%; left: 5%; font-size: 3em; animation: fade-in-out 5s infinite; }
+        @keyframes pulse-deco { 50% { transform: scale(1.3); } }
+        @keyframes fade-in-out { 50% { opacity: 0.8; } }
+    </style>
 </head>
 <body>
-
-    <header>
-        <h1>Hành Trình Tình Yêu Của Chúng Ta</h1>
-        <p>❤️ 100 ngày ngọt ngào bên nhau ❤️</p>
-    </header>
-
-    <div class="timeline">
-        <div class="container left">
-            <div class="content">
-                <h2>Ngày Đầu Gặp Gỡ</h2>
-                <small>02/04/2025</small>
-                <p>Định mệnh đã cho chúng ta gặp nhau vào ngày hôm ấy. Ban đầu khi bị bắt đi văn nghệ, anh cảm thấy rất chán nhưng không ngờ đây lại là việc giúp chúng ta gặp nhau...</p>
-                <img src="images/gap-nhau.jpg" alt="Ảnh ngày đầu gặp nhau">
-            </div>
-        </div>
-
-        <div class="container right">
-            <div class="content">
-                <h2>Buổi Hẹn Đầu Tiên</h2>
-                <small>27/04/2025</small>
-                <p>Hôm ấy thật ngượng ngùng nhưng gấu rất vui, lần đầu được nắm tay, được ôm Quin...</p>
-                <img src="images/hen-ho.jpg" alt="Ảnh buổi hẹn đầu tiên">
-            </div>
-        </div>
-
-        <div class="container left">
-            <div class="content">
-                <h2>Hôm Nay: 100 Ngày Yêu</h2>
-                <small>28/07/2025</small>
-                <p>Tuy 100 ngày không phải là dài, nhưng đủ để chúng ta viết nên tiền đề cho câu chuyện tình yêu của riêng mình. Hãy cùng nhau viết tiếp nên câu chuyện tình yêu này nhé...</p>
-                <img src="images/100-ngay.jpg" alt="Ảnh kỷ niệm 100 ngày">
-            </div>
-        </div>
+    <div id="intro-overlay">
+        <canvas id="heart-canvas"></canvas>
+        <div id="intro-status"></div>
     </div>
+    <main id="main-content">
+        <header class="main-header">
+            <h1>Hành Trình Tình Yêu</h1>
+        </header>
+        <div class="main-container">
+            <div class="timeline-container">
+                <svg id="timeline-svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMin meet">
+                    <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#f48fb1" /></marker></defs>
+                    <!-- ============================================== -->
+                    <!-- === ĐÃ SỬA LẠI: ĐỒ THỊ ĐỒNG BIẾN HƯỚNG LÊN === -->
+                    <!-- ============================================== -->
+                    <path id="timeline-path" d="M 50,350 C 250,300 300,50 550,150 S 700,50 750,50" marker-end="url(#arrowhead)"></path>
+                </svg>
+                <div id="connector-line"></div>
+                <div class="milestone-marker" id="marker-1" data-target="content-1">❤️<small>02/04/2026</small></div>
+                <div class="milestone-content" id="content-1"><img src="https://via.placeholder.com/300x200/ffe8f0/5b2c40?text=Ảnh+Gặp+Gỡ" alt="Gap go"><h2>Gặp nhau lần đầu</h2><p>Định mệnh đã cho chúng ta gặp nhau vào ngày hôm ấy...</p></div>
+                <div class="milestone-marker" id="marker-2" data-target="content-2">❤️<small>19/04/2026</small></div>
+                <div class="milestone-content" id="content-2"><img src="https://via.placeholder.com/300x200/a2d2ff/5b2c40?text=Ảnh+Hẹn+Hò" alt="Hen ho"><h2>Bắt đầu hẹn hò</h2><p>Hôm ấy thật ngượng ngùng nhưng gấu rất vui...</p></div>
+                <div class="milestone-marker" id="marker-3" data-target="content-3">❤️<small>28/07/2026</small></div>
+                <div class="milestone-content" id="content-3"><img src="https://via.placeholder.com/300x200/bde0fe/5b2c40?text=Ảnh+100+Ngày" alt="100 ngay"><h2>100 Ngày Yêu</h2><p>100 ngày không phải là dài, nhưng đủ để chúng ta viết nên tiền đề...</p></div>
+            </div>
+            <section class="scroll-section gallery-container">
+                <h2 class="section-title">Khoảnh khắc đáng nhớ</h2>
+                <div class="photo-grid">
+                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/ffe8f0/5b2c40?text=Ảnh+1" alt="Anh ky niem 1"></div>
+                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/a2d2ff/5b2c40?text=Ảnh+2" alt="Anh ky niem 2"></div>
+                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/bde0fe/5b2c40?text=Ảnh+3" alt="Anh ky niem 3"></div>
+                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/ffc2d1/5b2c40?text=Ảnh+4" alt="Anh ky niem 4"></div>
+                </div>
+            </section>
+        </div>
+        <section class="scroll-section letter-section">
+            <div class="deco-icon" id="plane">✈️</div>
+            <div class="deco-icon" id="heart1">❤️</div>
+            <div class="deco-icon" id="heart2">💖</div>
+            <div class="deco-icon" id="infinity">∞</div>
+            <div class="letter-content">
+                <h2 class="section-title" style="font-size: 3.5em;">Gửi Quin của Gấu</h2>
+                <p>Vậy là đã 100 ngày trôi qua kể từ khi chúng ta chính thức gọi nhau bằng hai tiếng thân thương. Thời gian không dài nhưng mỗi khoảnh khắc bên cạnh em/anh đều là một ký ức tuyệt đẹp mà anh/em sẽ mãi khắc ghi. Từ những bỡ ngỡ ban đầu, những cuộc trò chuyện không đầu không cuối, cho đến những cái nắm tay và những vòng ôm ấm áp, tất cả đã dệt nên một bức tranh tình yêu thật đẹp của riêng hai ta. Cảm ơn em/anh đã đến bên anh/em, mang theo ánh nắng và sưởi ấm trái tim này. Hành trình phía trước còn dài, chúng ta hãy cùng nhau viết tiếp những chương mới, em/anh nhé. Yêu em/anh rất nhiều!</p>
+                <p style="text-align: right; font-style: italic; margin-top: 30px;">Làm bằng cả trái tim bởi<br>Gấu iu của Thin Quin</p>
+            </div>
+        </section>
+    </main>
 
-    <footer>
-        <p>Làm bằng cả trái tim bởi "Gấu iu của Thin Quin"</p>
-    </footer>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const introOverlay = document.getElementById('intro-overlay');
+        const introStatus = document.getElementById('intro-status');
+        const mainContent = document.getElementById('main-content');
+        const canvas = document.getElementById('heart-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let animationFrameId;
+        const settings = {
+            particles: {
+                length: 2000,
+                duration: 4,
+                velocity: 100,
+                effect: -0.75,
+                size: 20,
+            },
+        };
 
+        const Point = (function() {
+            function Point(x, y) { this.x = x || 0; this.y = y || 0; }
+            Point.prototype.clone = function() { return new Point(this.x, this.y); };
+            Point.prototype.length = function(length) {
+                if (typeof length == 'undefined') return Math.sqrt(this.x * this.x + this.y * this.y);
+                this.normalize(); this.x *= length; this.y *= length; return this;
+            };
+            Point.prototype.normalize = function() {
+                var length = this.length(); this.x /= length; this.y /= length; return this;
+            };
+            return Point;
+        })();
+
+        const Particle = (function() {
+            function Particle() {
+                this.position = new Point(); this.velocity = new Point();
+                this.acceleration = new Point(); this.age = 0;
+            }
+            Particle.prototype.initialize = function(x, y, dx, dy) {
+                this.position.x = x; this.position.y = y;
+                this.velocity.x = dx; this.velocity.y = dy;
+                this.acceleration.x = dx * settings.particles.effect;
+                this.acceleration.y = dy * settings.particles.effect;
+                this.age = 0;
+            };
+            Particle.prototype.update = function(deltaTime) {
+                this.position.x += this.velocity.x * deltaTime;
+                this.position.y += this.velocity.y * deltaTime;
+                this.velocity.x += this.acceleration.x * deltaTime;
+                this.velocity.y += this.acceleration.y * deltaTime;
+                this.age += deltaTime;
+            };
+            Particle.prototype.draw = function(context, image) {
+                function ease(t) { return (--t) * t * t + 1; }
+                var size = image.width * ease(this.age / settings.particles.duration);
+                context.globalAlpha = 1 - this.age / settings.particles.duration;
+                context.drawImage(image, this.position.x - size / 2, this.position.y - size / 2, size, size);
+            };
+            return Particle;
+        })();
+
+        const ParticlePool = (function() {
+            var particles, firstActive = 0, firstFree = 0, duration = settings.particles.duration;
+            function ParticlePool(length) {
+                particles = new Array(length);
+                for (var i = 0; i < particles.length; i++) particles[i] = new Particle();
+            }
+            ParticlePool.prototype.add = function(x, y, dx, dy) {
+                particles[firstFree].initialize(x, y, dx, dy);
+                firstFree++;
+                if (firstFree == particles.length) firstFree = 0;
+                if (firstActive == firstFree) firstActive++;
+                if (firstActive == particles.length) firstActive = 0;
+            };
+            ParticlePool.prototype.update = function(deltaTime) {
+                var i;
+                if (firstActive < firstFree) {
+                    for (i = firstActive; i < firstFree; i++) particles[i].update(deltaTime);
+                }
+                if (firstFree < firstActive) {
+                    for (i = firstActive; i < particles.length; i++) particles[i].update(deltaTime);
+                    for (i = 0; i < firstFree; i++) particles[i].update(deltaTime);
+                }
+                while (particles[firstActive].age >= duration && firstActive != firstFree) {
+                    firstActive++;
+                    if (firstActive == particles.length) firstActive = 0;
+                }
+            };
+            ParticlePool.prototype.draw = function(context, image) {
+                if (firstActive < firstFree) {
+                    for (i = firstActive; i < firstFree; i++) particles[i].draw(context, image);
+                }
+                if (firstFree < firstActive) {
+                    for (i = firstActive; i < particles.length; i++) particles[i].draw(context, image);
+                    for (i = 0; i < firstFree; i++) particles[i].draw(context, image);
+                }
+            };
+            return ParticlePool;
+        })();
+
+        (function(canvas) {
+            const context = canvas.getContext('2d');
+            const particles = new ParticlePool(settings.particles.length);
+            const particleRate = settings.particles.length / settings.particles.duration;
+            let time;
+
+            function pointOnHeart(t) {
+                return new Point(
+                    160 * Math.pow(Math.sin(t), 3),
+                    130 * Math.cos(t) - 50 * Math.cos(2 * t) - 20 * Math.cos(3 * t) - 10 * Math.cos(4 * t)
+                );
+            }
+            
+            const image = (function() {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = settings.particles.size;
+                canvas.height = settings.particles.size;
+                const gradient = context.createRadialGradient(
+                    canvas.width / 2, canvas.height / 2, 0,
+                    canvas.width / 2, canvas.height / 2, canvas.width / 2
+                );
+                gradient.addColorStop(0, 'rgba(233, 30, 99, 1)');
+                gradient.addColorStop(1, 'rgba(233, 30, 99, 0)');
+                context.fillStyle = gradient;
+                context.beginPath();
+                context.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+                context.fill();
+                const image = new Image();
+                image.src = canvas.toDataURL();
+                return image;
+            })();
+
+            function render() {
+                animationFrameId = requestAnimationFrame(render);
+                const newTime = new Date().getTime() / 1000;
+                const deltaTime = newTime - (time || newTime);
+                time = newTime;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                const amount = particleRate * deltaTime;
+                for (var i = 0; i < amount; i++) {
+                    const pos = pointOnHeart(Math.PI - 2 * Math.PI * Math.random());
+                    const dir = pos.clone().length(settings.particles.velocity);
+                    particles.add(canvas.width / 2 + pos.x, canvas.height / 2 - pos.y, dir.x, -dir.y);
+                }
+                particles.update(deltaTime);
+                particles.draw(context, image);
+            }
+
+            function onResize() {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+            }
+            window.onresize = onResize;
+            
+            onResize();
+            render();
+
+            setTimeout(() => {
+                introStatus.textContent = "100 Ngày Yêu";
+                introStatus.style.opacity = 1;
+            }, 3000); 
+
+        })(canvas);
+
+        function startIntro() {
+            setTimeout(() => {
+                introOverlay.style.opacity = 0;
+                mainContent.style.opacity = 1;
+                mainContent.style.visibility = 'visible';
+                document.body.style.overflow = 'auto';
+            }, 5000);
+            setTimeout(() => {
+                introOverlay.style.display = 'none';
+                cancelAnimationFrame(animationFrameId);
+            }, 6500);
+        }
+        startIntro();
+
+        const path = document.getElementById('timeline-path');
+        if (path) {
+            const totalPathLength = path.getTotalLength();
+            path.style.strokeDashoffset = totalPathLength;
+            setTimeout(() => {
+                path.style.transition = 'stroke-dashoffset 3s ease-out';
+                path.style.strokeDashoffset = '0';
+            }, 5500);
+
+            const milestonePositions = { 
+                'marker-1': 0.05, // Điểm bắt đầu
+                'marker-2': 0.45, // Điểm cực tiểu
+                'marker-3': 0.95  // Điểm gần cuối
+            };
+            for (const markerId in milestonePositions) {
+                const marker = document.getElementById(markerId);
+                const point = path.getPointAtLength(totalPathLength * milestonePositions[markerId]);
+                if (marker) {
+                    marker.style.left = `${point.x}px`;
+                    marker.style.top = `${point.y}px`;
+                }
+            }
+        }
+        
+        const markers = document.querySelectorAll('.milestone-marker');
+        const contents = document.querySelectorAll('.milestone-content');
+        const connectorLine = document.getElementById('connector-line');
+        
+        markers.forEach(marker => {
+            marker.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const targetId = marker.dataset.target;
+                const targetContent = document.getElementById(targetId);
+                const isAlreadyActive = targetContent.classList.contains('active');
+                
+                contents.forEach(c => c.classList.remove('active'));
+                connectorLine.style.height = '0px';
+
+                if (isAlreadyActive) return;
+
+                const markerTop = marker.offsetTop;
+                const markerLeft = marker.offsetLeft;
+                const lineHeight = 60;
+                
+                connectorLine.style.top = `${markerTop + marker.offsetHeight/2}px`;
+                connectorLine.style.left = `${markerLeft}px`;
+                
+                targetContent.style.top = `${markerTop + marker.offsetHeight/2 + lineHeight + 10}px`;
+                targetContent.style.left = `${markerLeft - targetContent.offsetWidth / 2}px`;
+                
+                setTimeout(() => { connectorLine.style.height = `${lineHeight}px`; }, 100);
+                setTimeout(() => { targetContent.classList.add('active'); }, 400);
+            });
+        });
+        
+        document.addEventListener('click', () => {
+            contents.forEach(c => c.classList.remove('active'));
+            connectorLine.style.height = '0px';
+        });
+
+        const scrollSections = document.querySelectorAll('.scroll-section');
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    scrollObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2 });
+        scrollSections.forEach(section => scrollObserver.observe(section));
+    });
+    </script>
 </body>
 </html>
