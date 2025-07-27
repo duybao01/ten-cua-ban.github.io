@@ -264,26 +264,23 @@
             <div class="timeline-container">
                 <svg id="timeline-svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMin meet">
                     <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#f48fb1" /></marker></defs>
-                    <!-- ============================================== -->
-                    <!-- === ĐÃ SỬA LẠI: ĐỒ THỊ ĐỒNG BIẾN HƯỚNG LÊN === -->
-                    <!-- ============================================== -->
                     <path id="timeline-path" d="M 50,350 C 250,300 300,50 550,150 S 700,50 750,50" marker-end="url(#arrowhead)"></path>
                 </svg>
                 <div id="connector-line"></div>
                 <div class="milestone-marker" id="marker-1" data-target="content-1">❤️<small>02/04/2026</small></div>
-                <div class="milestone-content" id="content-1"><img src="https://via.placeholder.com/300x200/ffe8f0/5b2c40?text=Ảnh+Gặp+Gỡ" alt="Gap go"><h2>Gặp nhau lần đầu</h2><p>Định mệnh đã cho chúng ta gặp nhau vào ngày hôm ấy...</p></div>
+                <div class="milestone-content" id="content-1"><img src="images/gap-go.jpg" alt="Gap go"><h2>Gặp nhau lần đầu</h2><p>Định mệnh đã cho chúng ta gặp nhau vào ngày hôm ấy...</p></div>
                 <div class="milestone-marker" id="marker-2" data-target="content-2">❤️<small>19/04/2026</small></div>
-                <div class="milestone-content" id="content-2"><img src="https://via.placeholder.com/300x200/a2d2ff/5b2c40?text=Ảnh+Hẹn+Hò" alt="Hen ho"><h2>Bắt đầu hẹn hò</h2><p>Hôm ấy thật ngượng ngùng nhưng gấu rất vui...</p></div>
+                <div class="milestone-content" id="content-2"><img src="images/hen-ho.jpg" alt="Hen ho"><h2>Bắt đầu hẹn hò</h2><p>Hôm ấy thật ngượng ngùng nhưng gấu rất vui...</p></div>
                 <div class="milestone-marker" id="marker-3" data-target="content-3">❤️<small>28/07/2026</small></div>
-                <div class="milestone-content" id="content-3"><img src="https://via.placeholder.com/300x200/bde0fe/5b2c40?text=Ảnh+100+Ngày" alt="100 ngay"><h2>100 Ngày Yêu</h2><p>100 ngày không phải là dài, nhưng đủ để chúng ta viết nên tiền đề...</p></div>
+                <div class="milestone-content" id="content-3"><img src="images/100-ngay.jpg" alt="100 ngay"><h2>100 Ngày Yêu</h2><p>100 ngày không phải là dài, nhưng đủ để chúng ta viết nên tiền đề...</p></div>
             </div>
             <section class="scroll-section gallery-container">
                 <h2 class="section-title">Khoảnh khắc đáng nhớ</h2>
                 <div class="photo-grid">
-                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/ffe8f0/5b2c40?text=Ảnh+1" alt="Anh ky niem 1"></div>
-                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/a2d2ff/5b2c40?text=Ảnh+2" alt="Anh ky niem 2"></div>
-                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/bde0fe/5b2c40?text=Ảnh+3" alt="Anh ky niem 3"></div>
-                    <div class="photo-card"><img src="https://via.placeholder.com/300x400/ffc2d1/5b2c40?text=Ảnh+4" alt="Anh ky niem 4"></div>
+                    <div class="photo-card"><img src="images/khoanh-khac-1.jpg" alt="Anh ky niem 1"></div>
+                    <div class="photo-card"><img src="images/khoanh-khac-2.jpg" alt="Anh ky niem 2"></div>
+                    <div class="photo-card"><img src="images/khoanh-khac-3.jpg" alt="Anh ky niem 3"></div>
+                    <div class="photo-card"><img src="images/khoanh-khac-4.jpg" alt="Anh ky niem 4"></div>
                 </div>
             </section>
         </div>
@@ -319,7 +316,7 @@
             },
         };
 
-        const Point = (function() {
+        const Point = (() => {
             function Point(x, y) { this.x = x || 0; this.y = y || 0; }
             Point.prototype.clone = function() { return new Point(this.x, this.y); };
             Point.prototype.length = function(length) {
@@ -332,7 +329,7 @@
             return Point;
         })();
 
-        const Particle = (function() {
+        const Particle = (() => {
             function Particle() {
                 this.position = new Point(); this.velocity = new Point();
                 this.acceleration = new Point(); this.age = 0;
@@ -360,7 +357,7 @@
             return Particle;
         })();
 
-        const ParticlePool = (function() {
+        const ParticlePool = (() => {
             var particles, firstActive = 0, firstFree = 0, duration = settings.particles.duration;
             function ParticlePool(length) {
                 particles = new Array(length);
@@ -388,6 +385,7 @@
                 }
             };
             ParticlePool.prototype.draw = function(context, image) {
+                let i;
                 if (firstActive < firstFree) {
                     for (i = firstActive; i < firstFree; i++) particles[i].draw(context, image);
                 }
@@ -412,7 +410,7 @@
                 );
             }
             
-            const image = (function() {
+            const image = (() => {
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
                 canvas.width = settings.particles.size;
@@ -449,8 +447,8 @@
             }
 
             function onResize() {
-                canvas.width = canvas.clientWidth;
-                canvas.height = canvas.clientHeight;
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
             }
             window.onresize = onResize;
             
@@ -488,9 +486,9 @@
             }, 5500);
 
             const milestonePositions = { 
-                'marker-1': 0.05, // Điểm bắt đầu
-                'marker-2': 0.45, // Điểm cực tiểu
-                'marker-3': 0.95  // Điểm gần cuối
+                'marker-1': 0.05,
+                'marker-2': 0.45,
+                'marker-3': 0.95
             };
             for (const markerId in milestonePositions) {
                 const marker = document.getElementById(markerId);
